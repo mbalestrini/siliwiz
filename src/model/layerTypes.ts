@@ -4,6 +4,7 @@ export interface ILayerInfo {
   name: string;
   magicName: string;
   color: string;
+  opacity?: number;
   hatched?: boolean;
   crossY: number;
   crossHeight: number;
@@ -139,6 +140,7 @@ export const layerTypes: ILayerInfo[] = [
     name: 'metal1',
     magicName: 'metal1',
     color: 'rgb(125, 166, 250)',
+    opacity: 0.5,
     crossY: 55,
     crossHeight: 15,
     description: 'metal layer used for wiring up the circuit',
