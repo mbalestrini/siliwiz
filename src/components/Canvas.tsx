@@ -397,7 +397,7 @@ export default function Canvas(props: { size: number }) {
                   height={"100%"}
                   width={"100%"}
                   fill={layer.color}
-                  opacity={transparentLayers() ? 0.75 : 1.0}
+                  opacity={transparentLayers() ? layer.opacity : 1.0}
                   mask={"url(#mask_" + layer.magicName}
                 />
 
