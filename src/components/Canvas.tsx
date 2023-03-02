@@ -4,6 +4,7 @@ import { Delete, Edit, SwapHoriz, SwapVert } from '@suid/icons-material';
 import { ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@suid/material';
 import { createSignal, For, Show } from 'solid-js';
 import { activeDRCItem } from '~/model/drc';
+import { layerTypes } from '~/model/layerTypes';
 import {
   lambdaToMicrons,
   layout,
@@ -13,6 +14,7 @@ import {
   setLayout,
   setSelectedRectIndex,
   sortRects,
+  getLayerRects,
 } from '~/model/layout';
 import { spiceIdentifierRegexp, spiceIdentifierReservedNames } from '~/model/spiceFile';
 import { isLayerVisible, viewerState } from '~/model/viewerState';
@@ -20,6 +22,10 @@ import { domRectFromPoints, type Point2D } from '~/utils/geometry';
 import { ctrlCmdPressed } from '~/utils/keyboard';
 import styles from './Canvas.module.css';
 import Scale from './Scale';
+import {
+  transparentLayers,
+  showBorders
+} from './ExpertOptions';
 
 interface INewRect {
   layer: string;
@@ -271,12 +277,157 @@ export default function Canvas(props: { size: number }) {
             height="20"
             patternTransform="rotate(-45 0 0)"
           >
-            <line x1="0" y1="0" x2="0" y2="20" stroke="white" stroke-width="20" />
+            <line x1="0" y1="0" x2="0" y2="20" stroke="black" stroke-width="20" />
           </pattern>
           <mask id="hatch-mask" x="0" y="0" width="1" height="1">
             <rect x="0" y="0" width="1000" height="1000" fill="url(#hatch-pattern)" />
           </mask>
+
+          <rect id="union_canvas" width="100%" height="100%" fill="black" />
+          <rect id="union_canvas_inv" width="100%" height="100%" fill="white" />
+
+          {/* White filled shape */}
+          <For each={layerTypes}>
+            {(layer, index) => {
+              return (
+                <Show when={isLayerVisible(layer.name)}>
+                  <g id={"shape_" + layer.magicName}>
+                    <For each={getLayerRects(layer)}>
+                      {(rect, index) => {
+                        const layer = rectLayer(rect);
+                        if (layer == null) {
+                          return;
+                        }
+
+                        return (
+                          <rect
+                            x={rect.x}
+                            y={rect.y}
+                            height={rect.height}
+                            width={rect.width}
+                            fill="white"
+                            class={styles.rect}
+                          />
+                        );
+                      }}
+                    </For>
+                  </g>
+                </Show>
+              );
+            }}
+          </For>
+
+          {/* Black filled shape */}
+          <For each={layerTypes}>
+            {(layer, index) => {
+              return (
+                <g id={"shape_inv_" + layer.magicName}>
+                  <For each={getLayerRects(layer)}>
+                    {(rect, index) => {
+                      const layer = rectLayer(rect);
+                      if (layer == null) {
+                        return;
+                      }
+
+                      return (
+                        <rect
+                          x={rect.x}
+                          y={rect.y}
+                          height={rect.height}
+                          width={rect.width}
+                          fill="black"
+                          class={styles.rect}
+                        />
+                      );
+                    }}
+                  </For>
+                </g>
+              );
+            }}
+          </For>
+
+
+          {/* Positive mask */}
+          <For each={layerTypes}>
+            {(layer, index) => {
+              return (
+                <mask id={"mask_" + layer.magicName}>
+                  <use href="#union_canvas" />
+                  <use href={"#shape_" + layer.magicName} />
+                  <Show when={layer.hatched}>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#hatch-pattern)" />
+                  </Show>
+                </mask>
+              );
+            }}
+          </For>
+
+          {/* Negative mask */}
+          <For each={layerTypes}>
+            {(layer, index) => {
+              return (
+                <mask id={"mask_inv_" + layer.magicName}>
+                  <use href="#union_canvas_inv" />
+                  <use href={"#shape_inv_" + layer.magicName} />
+                </mask>
+              );
+            }}
+          </For>
+
+
         </defs>
+
+        <For each={layerTypes}>
+          {(layer) => {
+            return (
+              <Show when={isLayerVisible(layer.name)}>
+                <rect
+                  x={0}
+                  y={0}
+                  height={"100%"}
+                  width={"100%"}
+                  fill={layer.color}
+                  opacity={transparentLayers() ? 0.75 : 1.0}
+                  mask={"url(#mask_" + layer.magicName}
+                />
+
+              </Show>
+            );
+          }}
+        </For>
+
+        <Show when={showBorders()}>
+          <For each={layout.rects}>
+            {(rect, index) => {
+              const layer = rectLayer(rect);
+              if (layer == null) {
+                return;
+              }
+
+              return (
+                <Show when={isLayerVisible(layer.name)}>
+                  <rect
+                    x={rect.x}
+                    y={rect.y}
+                    height={rect.height}
+                    width={rect.width}
+                    fill="#ffffff00"
+                    opacity="0.3"
+                    class={styles.rect}
+                    stroke="black"
+                    stroke-width={2}
+                    stroke-dasharray='4 2'
+                    mask={"url(#mask_inv_" + layer.magicName}
+
+                  />
+
+                </Show>
+              );
+            }}
+          </For>
+        </Show>
+
+
         <For each={layout.rects}>
           {(rect, index) => {
             const layer = rectLayer(rect);
@@ -296,9 +447,9 @@ export default function Canvas(props: { size: number }) {
                     setContextMenu(
                       contextMenu() === null
                         ? {
-                            left: event.clientX + 2,
-                            top: event.clientY,
-                          }
+                          left: event.clientX + 2,
+                          top: event.clientY,
+                        }
                         : null,
                     );
                   }}
@@ -310,7 +461,7 @@ export default function Canvas(props: { size: number }) {
                     }
                   }}
                 >
-                  <rect
+                  {/* { <rect
                     x={rect.x}
                     y={rect.y}
                     height={rect.height}
@@ -318,7 +469,8 @@ export default function Canvas(props: { size: number }) {
                     fill={layer.color}
                     class={styles.rect}
                     mask={layer.hatched ? 'url(#hatch-mask)' : undefined}
-                  />
+                    opacity={transparentLayers() ? 0.75 : 1.0}
+                  /> } */}
                 </g>
               </Show>
             );
@@ -358,6 +510,7 @@ export default function Canvas(props: { size: number }) {
 
         <Show when={newRect()} keyed>
           {(rect) => {
+
             const layer = rectLayer(rect);
             if (layer == null) {
               return;

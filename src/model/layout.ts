@@ -4,7 +4,7 @@ import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { record } from 'solid-record';
 import inverter from '~/../presets/inverter.json';
-import { layerTypes } from './layerTypes';
+import { layerTypes, ILayerInfo } from './layerTypes';
 import { type ISpiceParams, setSpiceParams } from './spiceFile';
 
 export const lambdaToMicrons = 0.09;
@@ -28,6 +28,10 @@ export function rectsOverlap(a: ILayoutRect, b: ILayoutRect) {
 
 export function rectLayer(rect: Pick<ILayoutRect, 'layer'>) {
   return layerTypes.find((l) => l.name === rect.layer);
+}
+
+export function getLayerRects(layer: Pick<ILayerInfo, 'name'>) {
+  return layout.rects.filter((r) => r.layer === layer.name);  
 }
 
 /**
