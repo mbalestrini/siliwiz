@@ -143,6 +143,7 @@ export const layerTypes: ILayerInfo[] = [
     category: LayerCategory.Via,
     name: 'metal1 via',
     color: '#80ff80',
+    opacity: 0.75,
     magicName: 'polycontact', // fallback value, if no variation below matches
     crossY: 70,
     crossHeight: 15,
@@ -218,6 +219,7 @@ export const layerTypes: ILayerInfo[] = [
     name: 'metal2 via',
     magicName: 'm2contact', // fallback value, if no variation below matches
     color: '#80ff80',
+    opacity: 0.75,
     crossY: 30,
     crossHeight: 25,
     description: 'used to connect between metal1 and metal2 layers',
@@ -243,6 +245,7 @@ export const layerTypes: ILayerInfo[] = [
     name: 'metal2',
     magicName: 'metal2',
     color: 'rgb(125, 200, 250)',
+    opacity: 0.75,
     crossY: 10,
     crossHeight: 20, // bit thicker than met1
     description: 'second metal layer used for wiring up the circuit',
