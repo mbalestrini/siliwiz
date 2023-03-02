@@ -277,10 +277,20 @@ export default function Canvas(props: { size: number }) {
             height="20"
             patternTransform="rotate(-45 0 0)"
           >
+            <line x1="0" y1="0" x2="0" y2="20" stroke="white" stroke-width="20" />
+          </pattern>
+          <pattern
+            id="hatch-pattern-for-mask"
+            patternUnits="userSpaceOnUse"
+            width="20"
+            height="20"
+            patternTransform="rotate(-45 0 0)"
+          >
             <line x1="0" y1="0" x2="0" y2="20" stroke="black" stroke-width="20" />
           </pattern>
+
           <mask id="hatch-mask" x="0" y="0" width="1" height="1">
-            <rect x="0" y="0" width="1000" height="1000" fill="url(#hatch-pattern)" />
+            <rect x="0" y="0" width="1000" height="1000" fill="url(#hatch-pattern)"/>
           </mask>
 
           <rect id="union_canvas" width="100%" height="100%" fill="black" />
@@ -355,7 +365,7 @@ export default function Canvas(props: { size: number }) {
                   <use href="#union_canvas" />
                   <use href={"#shape_" + layer.magicName} />
                   <Show when={layer.hatched}>
-                    <rect x="0" y="0" width="100%" height="100%" fill="url(#hatch-pattern)" />
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#hatch-pattern-for-mask)"/>
                   </Show>
                 </mask>
               );
