@@ -30,6 +30,12 @@ export default function Layers() {
                   onClick={() => {
                     setViewerState('activeLayer', layer.name);
                   }}
+                  onMouseOver={() => {
+                    setViewerState('mouseOverLayer', layer.name);
+                  }}
+                  onMouseLeave={() => {
+                    setViewerState('mouseOverLayer', "");
+                  }}
                 >
                   <Checkbox
                     sx={{ p: 0.5 }}

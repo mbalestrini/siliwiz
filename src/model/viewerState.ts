@@ -6,6 +6,7 @@ export interface IViewerState {
   crossSectionOffset: number;
   activeLayer?: string;
   hiddenLayers: string[];
+  mouseOverLayer: string;
 
   readonly crossSectionY: number;
 }
@@ -13,6 +14,7 @@ export interface IViewerState {
 export const [viewerState, setViewerState] = createStore<IViewerState>({
   crossSectionOffset: 100,
   hiddenLayers: [],
+  mouseOverLayer: "",
 
   get crossSectionY() {
     return this.crossSectionOffset;

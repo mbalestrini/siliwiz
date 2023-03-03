@@ -397,7 +397,9 @@ export default function Canvas(props: { size: number }) {
                   height={"100%"}
                   width={"100%"}
                   fill={layer.color}
-                  opacity={transparentLayers() ? layer.opacity : 1.0}
+                  opacity={ viewerState.mouseOverLayer!="" ?
+                  viewerState.mouseOverLayer==layer.name ? 1.0 : 0.2 :
+                    transparentLayers() ? layer.opacity : 1.0}
                   mask={"url(#mask_" + layer.magicName}
                 />
 
